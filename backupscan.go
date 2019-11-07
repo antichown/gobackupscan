@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 	"net/url"
+	"io/ioutil"
 
 )
 
@@ -35,7 +36,7 @@ func backup_list(tt string) []string {
 		"test", "template", "upfile", "vip",
 		"web", "website", "wwwroot","wz","portal","blog","main","file"}
 
-		//lines = append(lines, strings.TrimSpace())
+	//lines = append(lines, strings.TrimSpace())
 
 	u, err := url.Parse(tt)
 	if err != nil {
@@ -64,12 +65,12 @@ func create_backup(tt string) (lines []string) {
 
 	var cr []string=backup_list(tt)
 
-	var ext = []string {".zip",".rar",".tar",".tar.gz",".2",".swp",".tmp","~",".tgz",".tar.bz2",".7z",".bak",".1",".2",".old"}
+	var ext = []string {".zip",".rar",".tar",".tar.gz",".tgz",".tar.bz2",".7z"}
 
 	for i := 0; i < len(ext); i++ {
 		for y := 0; y < len(cr); y++ {
 			//fmt.Println(tt+cr[y]+ext[i])
-				lines = append(lines, strings.TrimSpace(cr[y]+ext[i]))
+			lines = append(lines, strings.TrimSpace(cr[y]+ext[i]))
 
 		}
 	}
@@ -93,12 +94,15 @@ func scan_start(target string) {
 	for i, _ := range result {
 		result[i] = <-c
 		if result[i].status {
-			fmt.Println(result[i].url, " backup file ")
-			file_write(result[i].url + "\n")
+			if !strings.Contains(result[i].response,"<head>") {
+				fmt.Println(result[i].url, " backup file ")
+				file_write(result[i].url + "\n")
+
+			}
 
 		}
 	}
-	p(time.Since(start))
+	p(time.Since(start).Seconds())
 
 }
 func main() {
@@ -110,7 +114,7 @@ func main() {
 	if !strings.HasSuffix(target,"/") {
 		target=target+"/"
 	}
-		scan_start(target)
+	scan_start(target)
 
 }
 
@@ -119,25 +123,28 @@ func checkUrl(path string, c chan urlStatus) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET",strings.TrimSpace(path), nil)
 	if err != nil {
-			log.Fatalln(err)
+		log.Fatalln(err)
 	}
 
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36")
 
 	resp, err := client.Do(req)
 	if err != nil {
-			log.Fatalln()
+		log.Fatalln("")
 	}
 
 	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+
 	if (err==nil && resp.StatusCode == 200) {
-		c <- urlStatus{path, true}
+		c <- urlStatus{path, string(body),true}
 	} else {
-		c <- urlStatus{path, false}
+		c <- urlStatus{path, string(body),false}
 	}
 }
 
 type urlStatus struct {
 	url    string
+	response string
 	status bool
 }
