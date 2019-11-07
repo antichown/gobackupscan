@@ -37,7 +37,7 @@ func file_read(filem string) []string {
 
 func file_write(data string) {
 
-	f, err := os.OpenFile("sonuc.txt",
+	f, err := os.OpenFile("results.txt",
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)
@@ -107,6 +107,7 @@ func scan_start(target string) {
 	start := time.Now()
 
 	urls := create_backup(target)
+
 	c := make(chan urlStatus)
 	for _, path := range urls {
 		go checkUrl(target+path, c)
@@ -116,11 +117,10 @@ func scan_start(target string) {
 	for i, _ := range result {
 		result[i] = <-c
 		if result[i].status {
-			if !strings.Contains(result[i].response,"<head") && !strings.Contains(result[i].response,"<body") {
-				fmt.Println(result[i].url, " backup file ")
-				file_write(result[i].url + "\n")
-
-			}
+				if(result[i].response_type!="none") && !strings.Contains(result[i].response_type,"text") {
+					fmt.Println(result[i].url, " backup file ")
+					file_write(result[i].url + "\n")
+				}
 
 		}
 	}
@@ -131,7 +131,7 @@ func scan_start(target string) {
 func main() {
 
 	fmt.Println("Backup Scanner v0.1")
-	fmt.Println("------ twitter.com/0x94 ----- ")
+	fmt.Println("----- twitter.com/0x94 ----- ")
 	var target string
 	flag.StringVar(&target, "w", "", "go run backupscan.go -w url_list.txt")
 	flag.Parse()
@@ -146,9 +146,10 @@ func main() {
 		fmt.Println(u)
 		scan_start(u+"/")
 	}
-	//scan_start(target)
+	//scan_start("")
 
 }
+
 
 func checkUrl(path string, c chan urlStatus) {
 	//fmt.Println(path)
@@ -161,14 +162,15 @@ func checkUrl(path string, c chan urlStatus) {
 	if err==nil {
 
 		body, err := ioutil.ReadAll(resp.Body)
+		//fmt.Println(string(body))
 
 		if (err==nil && resp.StatusCode == 200) {
-			c <- urlStatus{path, string(body),true}
+			c <- urlStatus{path, string(body),true,resp.Header.Get("Content-Type")}
 		} else {
-			c <- urlStatus{path, "none",false}
+			c <- urlStatus{path, "none",false,"none"}
 		}
 	}else {
-		c <- urlStatus{path, "none",false}
+		c <- urlStatus{path, "none",false,"none"}
 
 	}
 
@@ -178,4 +180,5 @@ type urlStatus struct {
 	url    string
 	response string
 	status bool
+	response_type string
 }
