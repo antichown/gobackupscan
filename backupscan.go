@@ -28,12 +28,12 @@ func file_write(data string) {
 func backup_list(tt string) []string {
 
 	lines := []string {"db", "x", "ftp","hdocs", "web",
-		"1",  "root", "data.", "bak",  "admin", "www", "2014",
+		"1",  "root", "bak",  "admin", "www", "2014",
 		"2015", "2016", "2014", "2015", "2016",
 		"2017", "2018","2019","2020", "123", "a","db",
 		"back", "backup","data", "root", "release","sql",
 		"test", "template", "upfile", "vip",
-		"web", "website", "wwwroot","wz"}
+		"web", "website", "wwwroot","wz","portal","blog"}
 
 		//lines = append(lines, strings.TrimSpace())
 
