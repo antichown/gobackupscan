@@ -27,13 +27,13 @@ func file_write(data string) {
 }
 func backup_list(tt string) []string {
 
-	lines := []string {"db", "x", "ftp","hdocs", "web",
+	lines := []string {"db", "x", "ftp","hdocs",
 		"1",  "root", "bak",  "admin", "www", "2014",
 		"2015", "2016", "2014", "2015", "2016",
 		"2017", "2018","2019","2020", "123", "a",
 		"back", "backup","data", "root", "release","sql",
 		"test", "template", "upfile", "vip",
-		"web", "website", "wwwroot","wz","portal","blog"}
+		"web", "website", "wwwroot","wz","portal","blog","main","file"}
 
 		//lines = append(lines, strings.TrimSpace())
 
@@ -64,7 +64,7 @@ func create_backup(tt string) (lines []string) {
 
 	var cr []string=backup_list(tt)
 
-	var ext = []string {".zip",".rar",".tar",".tar.gz"}
+	var ext = []string {".zip",".rar",".tar",".tar.gz",".2",".swp",".tmp","~",".tgz",".tar.bz2",".7z",".bak",".1",".2",".old"}
 
 	for i := 0; i < len(ext); i++ {
 		for y := 0; y < len(cr); y++ {
