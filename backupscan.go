@@ -1,17 +1,39 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strings"
-	"time"
 	"net/url"
 	"io/ioutil"
-
+	"time"
 )
+
+
+func file_read(filem string) []string {
+
+	file, err := os.Open(filem)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	var lines []string
+
+	for scanner.Scan() {
+		lines = append(lines, "http://www."+strings.TrimSpace(scanner.Text()))
+	}
+
+	return lines
+
+}
+
 
 func file_write(data string) {
 
@@ -82,9 +104,9 @@ func create_backup(tt string) (lines []string) {
 
 func scan_start(target string) {
 	p := fmt.Println
+	start := time.Now()
 
 	urls := create_backup(target)
-	start := time.Now()
 	c := make(chan urlStatus)
 	for _, path := range urls {
 		go checkUrl(target+path, c)
@@ -94,7 +116,7 @@ func scan_start(target string) {
 	for i, _ := range result {
 		result[i] = <-c
 		if result[i].status {
-			if !strings.Contains(result[i].response,"<head>") {
+			if !strings.Contains(result[i].response,"<head") && !strings.Contains(result[i].response,"<body") {
 				fmt.Println(result[i].url, " backup file ")
 				file_write(result[i].url + "\n")
 
@@ -102,19 +124,29 @@ func scan_start(target string) {
 
 		}
 	}
-	p(time.Since(start).Seconds())
+	p("Request Count:",len(urls))
+	p("Scan Time :",time.Since(start).Seconds())
 
 }
 func main() {
 
+	fmt.Println("Backup Scanner v0.1")
+	fmt.Println("------ twitter.com/0x94 ----- ")
 	var target string
-	flag.StringVar(&target, "t", "", "Usage")
+	flag.StringVar(&target, "w", "", "go run backupscan.go -w url_list.txt")
 	flag.Parse()
 
-	if !strings.HasSuffix(target,"/") {
-		target=target+"/"
+	if target == "" {
+		flag.PrintDefaults()
+		os.Exit(1)
 	}
-	scan_start(target)
+	urls := file_read(target)
+
+	for _, u := range urls {
+		fmt.Println(u)
+		scan_start(u+"/")
+	}
+	//scan_start(target)
 
 }
 
@@ -122,25 +154,24 @@ func checkUrl(path string, c chan urlStatus) {
 	//fmt.Println(path)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET",strings.TrimSpace(path), nil)
-	if err != nil {
-		log.Fatalln(err)
-	}
 
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36")
 
 	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatalln("")
+	if err==nil {
+
+		body, err := ioutil.ReadAll(resp.Body)
+
+		if (err==nil && resp.StatusCode == 200) {
+			c <- urlStatus{path, string(body),true}
+		} else {
+			c <- urlStatus{path, "none",false}
+		}
+	}else {
+		c <- urlStatus{path, "none",false}
+
 	}
 
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-
-	if (err==nil && resp.StatusCode == 200) {
-		c <- urlStatus{path, string(body),true}
-	} else {
-		c <- urlStatus{path, string(body),false}
-	}
 }
 
 type urlStatus struct {
