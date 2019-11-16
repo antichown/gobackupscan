@@ -27,7 +27,7 @@ func file_read(filem string) []string {
 	var lines []string
 
 	for scanner.Scan() {
-		lines = append(lines, "http://www."+strings.TrimSpace(scanner.Text()))
+		lines = append(lines, strings.TrimSpace(scanner.Text()))
 	}
 
 	return lines
@@ -133,7 +133,7 @@ func main() {
 	fmt.Println("Backup Scanner v0.1")
 	fmt.Println("----- twitter.com/0x94 ----- ")
 	var target string
-	flag.StringVar(&target, "w", "", "go run backupscan.go -w url_list.txt")
+	flag.StringVar(&target, "w", "", "backupscan.exe -w url_list.txt")
 	flag.Parse()
 
 	if target == "" {
