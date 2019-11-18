@@ -4,10 +4,7 @@ Go Language
 ```
 go run backupscan.go -w urllist.txt
 
-```
-! urllist.txt de http yada www olmayacak 
 
-http or www will not be added to the urllist file
 
 Release : https://github.com/antichown/gobackupscan/releases
 
