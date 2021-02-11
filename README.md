@@ -1,5 +1,4 @@
 # Backup scanner
-Go Language
 
 ```
 go run backupscan.go -w urllist.txt
