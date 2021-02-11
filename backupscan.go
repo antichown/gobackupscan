@@ -53,7 +53,7 @@ func backup_list(tt string) []string {
 	lines := []string {"db", "x", "ftp","hdocs",
 		"1",  "root", "bak",  "admin", "www", "2014",
 		"2015", "2016", "2014", "2015", "2016",
-		"2017", "2018","2019","2020", "123", "a",
+		"2017", "2018","2019","2020", "2021","123", "a",
 		"back", "backup","data", "root", "release","sql",
 		"test", "template", "upfile", "vip",
 		"web", "website", "wwwroot","wz","portal","blog","main","file","123456"}
@@ -118,7 +118,7 @@ func scan_start(target string) {
 		result[i] = <-c
 		if result[i].status {
 				if(result[i].response_type!="none") && !strings.Contains(result[i].response_type,"text") {
-					fmt.Println(result[i].url, " backup file ")
+					fmt.Println(result[i].url, " backup ")
 					file_write(result[i].url + "\n")
 				}
 
