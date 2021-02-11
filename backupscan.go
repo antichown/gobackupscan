@@ -56,7 +56,7 @@ func backup_list(tt string) []string {
 		"2017", "2018","2019","2020", "123", "a",
 		"back", "backup","data", "root", "release","sql",
 		"test", "template", "upfile", "vip",
-		"web", "website", "wwwroot","wz","portal","blog","main","file"}
+		"web", "website", "wwwroot","wz","portal","blog","main","file","123456"}
 
 	//lines = append(lines, strings.TrimSpace())
 
